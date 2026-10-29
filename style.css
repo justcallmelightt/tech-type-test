@@ -46,7 +46,6 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-o
 .brand-name { font-size: 13px; font-weight: 740; letter-spacing: -.04em; }
 .topbar-note { color: var(--quiet); font-size: 12px; font-weight: 520; }
 .app { flex: 1; width: 100%; }
-.app > section { animation: stage-in .34s var(--ease) both; }
 .eyebrow { display: inline-flex; align-items: center; gap: 12px; color: var(--soft); font-size: 11px; font-weight: 650; letter-spacing: .055em; }
 .eyebrow-number { color: var(--ink); font-weight: 800; }
 .eyebrow-divider { width: 21px; height: 1px; background: var(--line); }
@@ -76,6 +75,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-o
 .intro-type { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
 .intro-type img { width: 36px; height: 36px; object-fit: contain; }
 .intro-type span { overflow: hidden; max-width: 100%; color: var(--soft); font-size: 11px; font-weight: 570; text-overflow: ellipsis; white-space: nowrap; }
+.intro-type .type-name { color: var(--type-color, var(--ink)); font-weight: 650; }
 .intro-type img[src$="javascript.svg"], .type-logo img[src$="javascript.svg"], .result-art img[src$="javascript.svg"] { background: #111; }
 
 /* Question: a clear reading order and one line per answer. */
@@ -86,11 +86,12 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-o
 .count-denominator { padding-bottom: 3px; color: var(--quiet); font-size: 15px; font-weight: 530; letter-spacing: 0; line-height: 1; }
 .rolling-number { display: inline-flex; align-items: flex-start; flex: none; height: 1em; line-height: 1em; letter-spacing: 0; white-space: nowrap; }
 .rolling-window { display: block; flex: none; width: .61em; height: 1em; overflow: hidden; }
-.rolling-track { display: flex; flex-direction: column; width: 100%; transition: transform .42s cubic-bezier(.2, .75, .25, 1); }
+.rolling-track { display: flex; flex-direction: column; width: 100%; transition: transform .48s cubic-bezier(.2, .75, .25, 1); }
 .rolling-track > span { display: block; flex: 0 0 1em; width: 100%; height: 1em; line-height: 1em; text-align: center; }
 .progress { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
-.progress-segment { height: 2px; background: var(--line); }
-.progress-segment.is-filled { background: var(--ink); }
+.progress-segment { height: 2px; overflow: hidden; background: var(--line); }
+.progress-segment::after { content: ''; display: block; width: 100%; height: 100%; background: var(--ink); transform: scaleX(0); transform-origin: left; transition: transform .44s var(--ease); }
+.progress-segment.is-filled::after { transform: scaleX(1); }
 .quiz-body { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: clamp(42px, 8vw, 130px); padding-top: clamp(72px, 10vw, 146px); }
 .question-label { display: flex; align-items: center; gap: 6px; margin-bottom: 26px; color: var(--quiet); font-size: 11px; font-weight: 650; letter-spacing: .1em; }
 .quiz h1 { max-width: 600px; font-size: clamp(42px, 4.9vw, 72px); font-weight: 660; line-height: 1.18; letter-spacing: -.066em; word-break: keep-all; text-wrap: balance; }
@@ -100,7 +101,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-o
 .answer { width: 100%; min-height: 91px; display: flex; align-items: center; gap: 20px; padding: 16px 8px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; color: var(--ink); text-align: left; transition: background .16s ease, padding .16s var(--ease); }
 .answer:hover { padding-left: 17px; background: var(--surface); }
 .answer:active { padding-left: 13px; background: #e9e9ec; transition-duration: .06s; }
-.answer.selected { background: var(--surface); }
+.answer.selected { padding-left: 17px; background: #e9e9ec; }
 .answer:focus-visible { position: relative; z-index: 1; outline-offset: -3px; }
 .answer-index { width: 30px; flex: none; color: var(--quiet); font-size: 12px; font-weight: 650; font-variant-numeric: tabular-nums; }
 .answer-text { flex: 1; font-size: clamp(16px, 1.35vw, 19px); font-weight: 570; line-height: 1.45; word-break: keep-all; }
@@ -117,6 +118,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-o
 .types-intro { max-width: 280px; padding-bottom: 8px; color: var(--soft); font-size: 15px; line-height: 1.7; word-break: keep-all; }
 .types-list { border-top: 1px solid var(--ink); }
 .type-row { min-height: 138px; display: grid; grid-template-columns: 46px 70px minmax(180px, 1fr) minmax(200px, auto); align-items: center; gap: clamp(18px, 3vw, 42px); padding: 20px 6px; border-bottom: 1px solid var(--line); transition: background .18s ease; }
+.types-view .type-row { animation: detail-in .4s var(--ease) var(--row-delay) both; }
 .type-row:hover { background: #fafafa; }
 .type-number { align-self: center; color: var(--quiet); font-size: 11px; font-weight: 590; font-variant-numeric: tabular-nums; }
 .type-logo { width: 66px; height: 66px; display: grid; place-items: center; }
@@ -175,12 +177,17 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-o
 .privacy-return:hover { opacity: .6; }
 .privacy-return:active { transform: scale(.975); transition-duration: .06s; }
 
-@keyframes stage-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes detail-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes art-in { from { opacity: 0; transform: translateY(10px) scale(.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .intro-content h1 { animation: detail-in .5s var(--ease) .04s both; }
 .intro-side { animation: detail-in .48s var(--ease) .1s both; }
 .intro-types { animation: detail-in .46s var(--ease) .17s both; }
-.result .result-art { animation: detail-in .4s var(--ease) both; }
+.types-heading { animation: detail-in .46s var(--ease) both; }
+.result .result-art { animation: art-in .52s var(--ease) both; }
+.result-identity h1 { animation: detail-in .48s var(--ease) .08s both; }
+.result-lead { animation: detail-in .46s var(--ease) .14s both; }
+.result-detail { animation: detail-in .48s var(--ease) .18s both; }
+.result-actions { animation: detail-in .44s var(--ease) .22s both; }
 
 @media (max-width: 1050px) {
   .intro-content { grid-template-columns: 1fr; align-items: start; gap: 36px; padding: 70px 0 70px; }
@@ -267,8 +274,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-o
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: .15s !important; animation-duration: .15s !important; animation-delay: 0s !important; }
-  .app > section, .intro-content h1, .intro-side, .intro-types, .result .result-art { animation-name: fade-only; }
+  .intro-content h1, .intro-side, .intro-types, .types-heading, .types-view .type-row, .result .result-art, .result-identity h1, .result-lead, .result-detail, .result-actions { animation-name: fade-only; }
   .rolling-track { transition: none !important; }
+  .progress-segment::after { transition: opacity .15s !important; transform: none; opacity: 0; }
+  .progress-segment.is-filled::after { opacity: 1; }
   .primary-button, .link-button, .text-button, .secondary-button, .answer, .privacy-return { transform: none !important; }
   @keyframes fade-only { from { opacity: 0; } to { opacity: 1; } }
 }

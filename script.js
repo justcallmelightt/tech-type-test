@@ -38,6 +38,12 @@ const app = document.querySelector('#app');
 const state = { screen: 'intro', index: 0, answers: Array(QUESTIONS.length).fill(null), result: null, typesReturn: 'intro', depth: 0 };
 let renderedScreen = null;
 let renderedQuizIndex = null;
+let pendingAdvance = null;
+
+function cancelPendingAdvance() {
+  if (pendingAdvance !== null) clearTimeout(pendingAdvance);
+  pendingAdvance = null;
+}
 
 function snapshot() {
   return { screen: state.screen, index: state.index, answers: [...state.answers], result: state.result, typesReturn: state.typesReturn, depth: state.depth };
@@ -60,6 +66,7 @@ function restoreSnapshot(saved) {
 }
 
 function goBack(fallbackScreen) {
+  cancelPendingAdvance();
   if (state.depth > 0) window.history.back();
   else {
     if (state.screen === 'quiz' && state.index > 0) state.index -= 1;
@@ -84,13 +91,13 @@ function setRollingNumber(value) {
   document.querySelector('#question-counter-announcement').textContent = `${value} / ${QUESTIONS.length}`;
 }
 
-function animateQuestionText(element, delay = 0) {
+function animateQuestionText(element, delay = 0, direction = 1) {
   if (!element?.animate) return;
   element.getAnimations().forEach(animation => animation.cancel());
   const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   element.animate(
-    reduced ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: .3, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
-    { duration: reduced ? 150 : 280, delay: reduced ? 0 : delay, easing: 'cubic-bezier(.22, .8, .2, 1)' }
+    reduced ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: `translateY(${direction * 9}px)` }, { opacity: 1, transform: 'translateY(0)' }],
+    { duration: reduced ? 150 : 320, delay: reduced ? 0 : delay, easing: 'cubic-bezier(.22, .8, .2, 1)', fill: 'backwards' }
   );
 }
 
@@ -101,7 +108,7 @@ function renderIntro() {
       <div class="intro-side"><p class="intro-copy">일상 속 선택 여덟 가지로 나와 닮은 기술을 찾아보세요. 코딩을 몰라도 편하게 답할 수 있어요.</p>
       <div class="action-row"><button class="primary-button" id="start" type="button"><span>검사 시작하기</span><span class="button-arrow" aria-hidden="true">↗</span></button><button class="link-button" id="show-types" type="button">유형 먼저 보기 <span aria-hidden="true">→</span></button></div></div>
     </div>
-    <div class="intro-types"><span class="intro-types-label">어떤 유형이 있을까요</span><div class="intro-types-list">${Object.values(TYPES).map(type => `<div class="intro-type"><img src="assets/logos/${type.logo}.svg" alt="" width="36" height="36"><span>${type.name}</span></div>`).join('')}</div></div>
+    <div class="intro-types"><span class="intro-types-label">어떤 유형이 있을까요</span><div class="intro-types-list">${Object.entries(TYPES).map(([id, type]) => `<div class="intro-type type--${id}" style="--type-color:${type.accent}"><img src="assets/logos/${type.logo}.svg" alt="" width="36" height="36"><span class="type-name">${type.name}</span></div>`).join('')}</div></div>
   </section>`;
   document.querySelector('#start').addEventListener('click', () => { state.screen = 'quiz'; state.index = 0; state.answers.fill(null); state.result = null; render(); });
   document.querySelector('#show-types').addEventListener('click', () => { state.typesReturn = 'intro'; state.screen = 'types'; render(); });
@@ -110,7 +117,7 @@ function renderIntro() {
 function renderTypes() {
   app.innerHTML = `<section class="types-view" aria-labelledby="types-title">
     <div class="types-heading"><div><p class="eyebrow"><span class="eyebrow-number">02 / 03</span> 유형 둘러보기</p><h1 id="types-title" tabindex="-1">서로 다른<br><span class="types-gradient">여섯 가지 방식.</span></h1></div><p class="types-intro">정답에 가까운 유형은 없어요. 저마다 다른 강점을 기술 이름으로 표현했습니다.</p></div>
-    <div class="types-list">${Object.entries(TYPES).map(([id, type], index) => `<article class="type-row type--${id}" style="--type-color:${type.accent}"><span class="type-number">${String(index + 1).padStart(2, '0')}</span><div class="type-logo"><img src="assets/logos/${type.logo}.svg" alt="" width="56" height="56"></div><div class="type-description"><h2 class="type-name">${type.name}</h2><p>${type.lead}</p></div><div class="tag-row">${type.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div></article>`).join('')}</div>
+    <div class="types-list">${Object.entries(TYPES).map(([id, type], index) => `<article class="type-row type--${id}" style="--type-color:${type.accent};--row-delay:${70 + index * 45}ms"><span class="type-number">${String(index + 1).padStart(2, '0')}</span><div class="type-logo"><img src="assets/logos/${type.logo}.svg" alt="" width="56" height="56"></div><div class="type-description"><h2 class="type-name">${type.name}</h2><p>${type.lead}</p></div><div class="tag-row">${type.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div></article>`).join('')}</div>
     <div class="types-actions"><button class="primary-button" id="types-start" type="button"><span>검사 시작하기</span><span class="button-arrow" aria-hidden="true">↗</span></button><button class="link-button" id="types-back" type="button">${state.typesReturn === 'result' ? '내 결과로 돌아가기' : '처음으로 돌아가기'} <span aria-hidden="true">→</span></button></div>
   </section>`;
   document.querySelector('#types-start').addEventListener('click', () => { state.index = 0; state.answers.fill(null); state.result = null; state.screen = 'quiz'; render(); });
@@ -126,30 +133,42 @@ function renderQuiz() {
     <div class="answer-block"><div class="answers">${question.answers.map(([label], answerIndex) => `<button class="answer ${state.answers[state.index] === answerIndex ? 'selected' : ''}" type="button" data-answer="${answerIndex}" aria-pressed="${state.answers[state.index] === answerIndex}"><span class="answer-index">${String.fromCharCode(65 + answerIndex)}</span><span class="answer-text">${escapeHtml(label)}</span><span class="answer-arrow" aria-hidden="true">↗</span></button>`).join('')}</div><div class="quiz-nav"><button class="text-button" id="back" type="button">← ${state.index === 0 ? '이전 화면' : '이전 질문'}</button><span class="quiz-hint">답을 고르면 다음으로 넘어갑니다</span></div></div></div>
   </section>`;
   document.querySelectorAll('[data-answer]').forEach(button => button.addEventListener('click', () => {
+    cancelPendingAdvance();
     state.answers[state.index] = Number(button.dataset.answer);
-    if (state.index === QUESTIONS.length - 1) { state.result = calculateResult(); state.screen = 'result'; }
-    else state.index += 1;
-    render();
+    document.querySelectorAll('[data-answer]').forEach(answer => {
+      const selected = answer === button;
+      answer.classList.toggle('selected', selected);
+      answer.setAttribute('aria-pressed', String(selected));
+    });
+    pendingAdvance = setTimeout(() => {
+      pendingAdvance = null;
+      if (state.index === QUESTIONS.length - 1) { state.result = calculateResult(); state.screen = 'result'; }
+      else state.index += 1;
+      render();
+    }, 140);
   }));
   document.querySelector('#back').addEventListener('click', () => goBack(state.index > 0 ? 'quiz' : 'intro'));
   renderedQuizIndex = state.index;
+  animateQuestionText(document.querySelector('#question-title'));
+  document.querySelectorAll('.answer-text').forEach((label, index) => animateQuestionText(label, 24 + index * 28));
 }
 
 function updateQuiz() {
   const question = QUESTIONS[state.index];
   const changed = renderedQuizIndex !== state.index;
+  const direction = state.index < renderedQuizIndex ? -1 : 1;
   setRollingNumber(state.index + 1);
   const progress = document.querySelector('.progress');
   progress.setAttribute('aria-valuenow', state.index + 1);
   progress.querySelectorAll('.progress-segment').forEach((segment, index) => segment.classList.toggle('is-filled', index <= state.index));
   const title = document.querySelector('#question-title');
   title.textContent = question.title;
-  if (changed) animateQuestionText(title);
+  if (changed) animateQuestionText(title, 0, direction);
   document.querySelectorAll('[data-answer]').forEach((button, index) => {
     const selected = state.answers[state.index] === index;
     const label = button.querySelector('.answer-text');
     label.textContent = question.answers[index][0];
-    if (changed) animateQuestionText(label, 25 + index * 30);
+    if (changed) animateQuestionText(label, 24 + index * 28, direction);
     button.classList.toggle('selected', selected);
     button.setAttribute('aria-pressed', String(selected));
   });
@@ -218,11 +237,13 @@ if (!restoreSnapshot(window.history.state?.typeTech)) {
   try { window.history.replaceState({ typeTech: snapshot() }, ''); } catch { /* Local browsing can disable history state. */ }
 }
 window.addEventListener('popstate', event => {
+  cancelPendingAdvance();
   if (restoreSnapshot(event.state?.typeTech)) render(false);
   else { state.screen = 'intro'; state.index = 0; state.answers.fill(null); state.result = null; state.depth = 0; render(false); }
 });
 document.querySelector('.brand')?.addEventListener('click', event => {
   event.preventDefault();
+  cancelPendingAdvance();
   state.screen = 'intro'; state.index = 0; state.answers.fill(null); state.result = null;
   render();
 });
