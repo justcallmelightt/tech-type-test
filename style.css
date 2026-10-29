@@ -44,8 +44,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-o
 .brand-icon { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid var(--ink); color: var(--ink); font-size: 11px; font-weight: 760; letter-spacing: -.09em; }
 .brand-icon span { margin-inline: 1px; }
 .brand-name { font-size: 13px; font-weight: 740; letter-spacing: -.04em; }
-.topbar-note { display: inline-flex; align-items: center; gap: 9px; color: var(--quiet); font-size: 12px; font-weight: 520; }
-.signal-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); }
+.topbar-note { color: var(--quiet); font-size: 12px; font-weight: 520; }
 .app { flex: 1; width: 100%; }
 .app > section { animation: stage-in .34s var(--ease) both; }
 .eyebrow { display: inline-flex; align-items: center; gap: 12px; color: var(--soft); font-size: 11px; font-weight: 650; letter-spacing: .055em; }
@@ -110,10 +109,11 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-o
 .text-button:disabled { opacity: .38; cursor: default; transform: none; }
 .quiz-hint { color: var(--quiet); font-size: 12px; }
 
-/* Directory: indexed rows, with original marks as the only colour. */
+/* Directory: indexed rows with the technology names in their own colors. */
 .types-view { max-width: 1240px; margin: 0 auto; padding: clamp(56px, 7vw, 105px) 0 100px; }
 .types-heading { display: flex; justify-content: space-between; align-items: end; gap: 40px; margin-bottom: 64px; }
 .types-heading h1 { margin-top: 28px; font-size: clamp(60px, 6.6vw, 98px); font-weight: 640; line-height: 1.06; letter-spacing: -.075em; word-break: keep-all; }
+.types-gradient { display: inline-block; color: #3178C6; background: linear-gradient(90deg, #54C5F8 0%, #54C5F8 20%, #3178C6 34%, #3178C6 48%, #F7DF1E 62%, #F7DF1E 72%, #663399 86%, #663399 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .types-intro { max-width: 280px; padding-bottom: 8px; color: var(--soft); font-size: 15px; line-height: 1.7; word-break: keep-all; }
 .types-list { border-top: 1px solid var(--ink); }
 .type-row { min-height: 138px; display: grid; grid-template-columns: 46px 70px minmax(180px, 1fr) minmax(200px, auto); align-items: center; gap: clamp(18px, 3vw, 42px); padding: 20px 6px; border-bottom: 1px solid var(--line); transition: background .18s ease; }
@@ -122,6 +122,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-o
 .type-logo { width: 66px; height: 66px; display: grid; place-items: center; }
 .type-logo img { width: 56px; height: 56px; object-fit: contain; }
 .type-description h2 { font-size: clamp(27px, 2.7vw, 36px); font-weight: 650; line-height: 1.12; letter-spacing: -.055em; }
+.type-name { color: var(--type-color, var(--ink)); }
+.type--flutter .type-name, .type--python .type-name { display: inline-block; color: var(--type-color, var(--ink)); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.type--flutter .type-name { background-image: linear-gradient(90deg, #54C5F8 0%, #01579B 100%); }
+.type--python .type-name { background-image: linear-gradient(90deg, #3776AB 0%, #FFD43B 100%); -webkit-text-stroke: .35px #896500; }
 .type-description p { margin-top: 8px; color: var(--soft); font-size: 14px; line-height: 1.5; word-break: keep-all; }
 .tag-row { display: flex; align-items: center; gap: 7px 16px; flex-wrap: wrap; }
 .type-row .tag-row { justify-content: flex-end; }
@@ -137,9 +141,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-o
 .result-identity { min-height: 560px; display: flex; flex-direction: column; align-items: flex-start; padding: clamp(38px, 5vw, 72px) clamp(28px, 5vw, 70px) clamp(42px, 5vw, 66px) 0; }
 .result-art { width: 140px; height: 140px; display: grid; place-items: center; margin-bottom: auto; }
 .result-art img { width: 112px; height: 112px; object-fit: contain; }
-.result-kicker { margin-top: 50px; color: var(--quiet); font-size: 11px; font-weight: 650; letter-spacing: .1em; }
 .result h1 { margin-top: 16px; font-size: clamp(52px, 6.1vw, 92px); font-weight: 630; line-height: 1.11; letter-spacing: -.075em; word-break: keep-all; text-wrap: balance; }
-.result h1 span { color: var(--type-color, var(--ink)); font-weight: 790; }
+.result h1 span { font-weight: inherit; }
 .result-lead { margin-top: 22px; color: var(--soft); font-size: clamp(17px, 1.75vw, 23px); font-weight: 520; line-height: 1.5; letter-spacing: -.025em; word-break: keep-all; }
 .result-detail { display: flex; flex-direction: column; padding: clamp(38px, 5vw, 72px) 0 clamp(42px, 5vw, 66px) clamp(34px, 5vw, 70px); border-left: 1px solid var(--line); }
 .detail-number { color: var(--quiet); font-size: 11px; font-weight: 650; letter-spacing: .08em; }

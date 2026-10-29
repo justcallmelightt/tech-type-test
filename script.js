@@ -1,6 +1,6 @@
 const TYPES = {
   flutter: { name: 'Flutter', accent: '#02569B', pale: '#e3f2fa', logo: 'flutter', lead: '어디서든 자연스럽게 어울리는 유연한 연결자', reason: '당신은 새로운 환경에 들어가도 사람들과 금세 호흡을 맞춥니다. 서로 다른 생각을 한데 모아 보기 좋은 결과로 만드는 것을 즐기죠. 다양한 환경에서 하나의 경험을 만들어 내는 Flutter처럼, 당신의 장점은 유연함과 조화로움이에요.', tags: ['적응력', '협업', '균형감'] },
-  javascript: { name: 'JavaScript', accent: '#927000', pale: '#f7edcb', logo: 'javascript', lead: '생각보다 행동이 빠른 에너지 메이커', reason: '떠오른 아이디어를 오래 묵혀 두기보다 일단 움직여 보는 편이에요. 상황에 맞춰 빠르게 반응하고 주변 분위기까지 생기 있게 만들죠. 웹에 활기를 더하는 JavaScript처럼, 당신은 어디서든 새로운 가능성을 시작합니다.', tags: ['실행력', '호기심', '순발력'] },
+  javascript: { name: 'JavaScript', accent: '#E0C919', pale: '#f7edcb', logo: 'javascript', lead: '생각보다 행동이 빠른 에너지 메이커', reason: '떠오른 아이디어를 오래 묵혀 두기보다 일단 움직여 보는 편이에요. 상황에 맞춰 빠르게 반응하고 주변 분위기까지 생기 있게 만들죠. 웹에 활기를 더하는 JavaScript처럼, 당신은 어디서든 새로운 가능성을 시작합니다.', tags: ['실행력', '호기심', '순발력'] },
   typescript: { name: 'TypeScript', accent: '#3178C6', pale: '#e4edf7', logo: 'typescript', lead: '배려 깊은 기준으로 함께 오래 가는 설계자', reason: '작은 약속을 소중히 여기고, 모두가 이해할 수 있도록 생각을 정리합니다. 서두르기보다 실수를 줄일 방법을 먼저 살피죠. 분명한 기준으로 협업을 돕는 TypeScript처럼, 당신이 있으면 일이 한층 든든해집니다.', tags: ['명확함', '신뢰', '계획성'] },
   python: { name: 'Python', accent: '#3776AB', pale: '#e7eef5', logo: 'python', lead: '복잡한 이야기도 쉽게 풀어내는 다정한 탐험가', reason: '새로운 분야를 배우는 데 거리낌이 없고, 어려운 생각도 쉬운 말로 나눌 줄 압니다. 궁금한 것이 생기면 차근차근 파고들죠. 여러 분야에서 쓰이는 Python처럼, 당신의 가능성은 한곳에 머물지 않아요.', tags: ['배움', '설명력', '개방성'] },
   rust: { name: 'Rust', accent: '#6a4c3c', pale: '#f3e8e0', logo: 'rust', lead: '보이지 않는 부분까지 믿음직하게 챙기는 수호자', reason: '빨리 끝내는 것보다 제대로 해내는 데 마음이 갑니다. 문제가 생기기 전에 작은 징후를 알아보고, 한번 맡은 일은 끝까지 책임지죠. 안정적인 기반을 중시하는 Rust처럼, 당신은 곁에 있는 사람에게 신뢰를 줍니다.', tags: ['책임감', '집중력', '안정감'] },
@@ -109,8 +109,8 @@ function renderIntro() {
 
 function renderTypes() {
   app.innerHTML = `<section class="types-view" aria-labelledby="types-title">
-    <div class="types-heading"><div><p class="eyebrow"><span class="eyebrow-number">02 / 03</span> 유형 둘러보기</p><h1 id="types-title" tabindex="-1">서로 다른<br>여섯 가지 방식.</h1></div><p class="types-intro">정답에 가까운 유형은 없어요. 저마다 다른 강점을 기술 이름으로 표현했습니다.</p></div>
-    <div class="types-list">${Object.entries(TYPES).map(([id, type], index) => `<article class="type-row"><span class="type-number">${String(index + 1).padStart(2, '0')}</span><div class="type-logo"><img src="assets/logos/${type.logo}.svg" alt="" width="56" height="56"></div><div class="type-description"><h2>${type.name}</h2><p>${type.lead}</p></div><div class="tag-row">${type.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div></article>`).join('')}</div>
+    <div class="types-heading"><div><p class="eyebrow"><span class="eyebrow-number">02 / 03</span> 유형 둘러보기</p><h1 id="types-title" tabindex="-1">서로 다른<br><span class="types-gradient">여섯 가지 방식.</span></h1></div><p class="types-intro">정답에 가까운 유형은 없어요. 저마다 다른 강점을 기술 이름으로 표현했습니다.</p></div>
+    <div class="types-list">${Object.entries(TYPES).map(([id, type], index) => `<article class="type-row type--${id}" style="--type-color:${type.accent}"><span class="type-number">${String(index + 1).padStart(2, '0')}</span><div class="type-logo"><img src="assets/logos/${type.logo}.svg" alt="" width="56" height="56"></div><div class="type-description"><h2 class="type-name">${type.name}</h2><p>${type.lead}</p></div><div class="tag-row">${type.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div></article>`).join('')}</div>
     <div class="types-actions"><button class="primary-button" id="types-start" type="button"><span>검사 시작하기</span><span class="button-arrow" aria-hidden="true">↗</span></button><button class="link-button" id="types-back" type="button">${state.typesReturn === 'result' ? '내 결과로 돌아가기' : '처음으로 돌아가기'} <span aria-hidden="true">→</span></button></div>
   </section>`;
   document.querySelector('#types-start').addEventListener('click', () => { state.index = 0; state.answers.fill(null); state.result = null; state.screen = 'quiz'; render(); });
@@ -174,9 +174,9 @@ function calculateResult() {
 
 function renderResult() {
   const type = TYPES[state.result];
-  app.innerHTML = `<section class="result" style="--type-color:${type.accent}" aria-labelledby="result-title">
+  app.innerHTML = `<section class="result type--${state.result}" style="--type-color:${type.accent}" aria-labelledby="result-title">
     <div class="result-top"><p class="eyebrow"><span class="eyebrow-number">03 / 03</span> 당신의 유형</p><span class="result-seal">TYPE / TECH RESULT</span></div>
-    <div class="result-layout"><div class="result-identity"><div class="result-art" aria-hidden="true"><img src="assets/logos/${type.logo}.svg" alt="" width="116" height="116"></div><p class="result-kicker">YOUR TYPE IS</p><h1 id="result-title" tabindex="-1">당신은<br><span>${type.name}</span> 유형입니다.</h1><p class="result-lead">${type.lead}</p></div>
+    <div class="result-layout"><div class="result-identity"><div class="result-art" aria-hidden="true"><img src="assets/logos/${type.logo}.svg" alt="" width="116" height="116"></div><h1 id="result-title" tabindex="-1">당신은<br><span class="type-name">${type.name}</span> 유형입니다.</h1><p class="result-lead">${type.lead}</p></div>
     <div class="result-detail"><span class="detail-number">01 / WHY THIS TYPE</span><h2>왜 ${type.name}<br>유형일까요?</h2><p>${type.reason}</p><div class="tag-row">${type.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div><div class="result-note">이 결과는 재미를 위한 해석입니다.<br>사람을 하나의 유형으로 단정하지 않아요.</div></div></div>
     <div class="result-actions"><button class="primary-button" id="share" type="button"><span>결과 공유하기</span><span class="button-arrow" aria-hidden="true">↗</span></button><button class="secondary-button" id="all-types" type="button">다른 유형 보기 <span aria-hidden="true">→</span></button><button class="secondary-button" id="restart" type="button">다시 해보기 <span aria-hidden="true">↺</span></button></div><p class="share-note" id="share-note" role="status"></p>
   </section>`;
