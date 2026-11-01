@@ -40,10 +40,36 @@ const state = { screen: 'intro', index: 0, answers: Array(QUESTIONS.length).fill
 let renderedScreen = null;
 let renderedQuizIndex = null;
 let pendingAdvance = null;
+let introRevealObserver = null;
 
 function cancelPendingAdvance() {
   if (pendingAdvance !== null) clearTimeout(pendingAdvance);
   pendingAdvance = null;
+}
+
+function initializeIntroReveal() {
+  introRevealObserver?.disconnect();
+  introRevealObserver = null;
+  const intro = app.querySelector('.intro');
+  if (!intro || !('IntersectionObserver' in window)) return;
+
+  const elements = [...intro.querySelectorAll('.intro-content h1, .intro-copy, .intro-side, .intro-types')];
+  intro.classList.add('intro-motion-ready');
+  elements.forEach(element => element.classList.add('intro-reveal'));
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    elements.forEach(element => element.classList.add('is-revealed'));
+    return;
+  }
+
+  introRevealObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-revealed');
+      observer.unobserve(entry.target);
+    });
+  }, { rootMargin: '0px 0px -10% 0px', threshold: 0.15 });
+  elements.forEach(element => introRevealObserver.observe(element));
 }
 
 function snapshot() {
@@ -112,6 +138,7 @@ function renderIntro() {
   </section>`;
   document.querySelector('#start').addEventListener('click', () => { state.screen = 'quiz'; state.index = 0; state.answers.fill(null); state.result = null; render(); });
   document.querySelector('#show-types').addEventListener('click', () => { state.typesReturn = 'intro'; state.screen = 'types'; render(); });
+  initializeIntroReveal();
 }
 
 function renderTypes() {
@@ -215,6 +242,10 @@ function renderResult() {
 }
 
 function render(recordHistory = true, focusHeading = true) {
+  if (state.screen !== 'intro') {
+    introRevealObserver?.disconnect();
+    introRevealObserver = null;
+  }
   if (recordHistory) {
     state.depth += 1;
     try { window.history.pushState({ typeTech: snapshot() }, ''); }
