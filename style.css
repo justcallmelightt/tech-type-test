@@ -178,11 +178,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-o
 .privacy-return:active { transform: scale(.975); transition-duration: .06s; }
 
 @keyframes detail-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes art-in { from { opacity: 0; transform: translateY(10px) scale(.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
-.intro-motion-ready .intro-reveal { transition: opacity 750ms ease-out, transform 850ms cubic-bezier(.18,.72,.2,1); }
-.intro-motion-ready .intro-reveal:not(.is-revealed) { opacity: 0; transform: translateY(12px); }
+.intro-motion-ready .intro-reveal, .result-motion-ready .result-art-reveal { transition: opacity 750ms ease-out, transform 850ms cubic-bezier(.18,.72,.2,1); }
+.intro-motion-ready .intro-reveal:not(.is-revealed), .result-motion-ready .result-art-reveal:not(.is-revealed) { opacity: 0; transform: translateY(12px); }
 .types-heading { animation: detail-in .46s var(--ease) both; }
-.result .result-art { animation: art-in .52s var(--ease) both; }
 .result-identity h1 { animation: detail-in .48s var(--ease) .08s both; }
 .result-lead { animation: detail-in .46s var(--ease) .14s both; }
 .result-detail { animation: detail-in .48s var(--ease) .18s both; }
@@ -273,7 +271,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-o
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: .15s !important; animation-duration: .15s !important; animation-delay: 0s !important; }
-  .intro-motion-ready .intro-reveal, .intro-motion-ready .intro-reveal:not(.is-revealed) { opacity: 1; transform: none; transition: opacity .15s ease-out; }
+  .intro-motion-ready .intro-reveal, .intro-motion-ready .intro-reveal:not(.is-revealed), .result-motion-ready .result-art-reveal, .result-motion-ready .result-art-reveal:not(.is-revealed) { opacity: 1; transform: none; transition: opacity .15s ease-out; }
   .intro-content h1, .intro-side, .intro-types, .types-heading, .types-view .type-row, .result .result-art, .result-identity h1, .result-lead, .result-detail, .result-actions { animation-name: fade-only; }
   .rolling-track { transition: none !important; }
   .progress-segment::after { transition: opacity .15s !important; transform: none; opacity: 0; }

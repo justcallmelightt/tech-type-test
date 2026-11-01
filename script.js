@@ -72,6 +72,21 @@ function initializeIntroReveal() {
   elements.forEach(element => introRevealObserver.observe(element));
 }
 
+function initializeResultArtReveal() {
+  const result = app.querySelector('.result');
+  const art = result?.querySelector('.result-art');
+  if (!result || !art) return;
+
+  result.classList.add('result-motion-ready');
+  art.classList.add('result-art-reveal');
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    art.classList.add('is-revealed');
+    return;
+  }
+
+  requestAnimationFrame(() => requestAnimationFrame(() => art.classList.add('is-revealed')));
+}
+
 function snapshot() {
   return { screen: state.screen, index: state.index, answers: [...state.answers], result: state.result, typesReturn: state.typesReturn, depth: state.depth };
 }
@@ -226,6 +241,7 @@ function renderResult() {
     <div class="result-detail"><h2>왜 ${type.name}<br>유형일까요?</h2><p>${type.reason}</p><div class="tag-row">${type.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div><section class="tech-explainer" aria-labelledby="tech-explainer-title"><h3 id="tech-explainer-title">${type.name}는 무엇인가요?</h3><p>${type.description}</p></section></div></div>
     <div class="result-actions"><button class="primary-button" id="share" type="button"><span>결과 공유하기</span><span class="button-arrow" aria-hidden="true">↗</span></button><button class="secondary-button" id="all-types" type="button">다른 유형 보기 <span aria-hidden="true">→</span></button><button class="secondary-button" id="restart" type="button">다시 해보기 <span aria-hidden="true">↺</span></button></div><p class="share-note" id="share-note" role="status"></p>
   </section>`;
+  initializeResultArtReveal();
   document.querySelector('#all-types').addEventListener('click', () => { state.typesReturn = 'result'; state.screen = 'types'; render(); });
   document.querySelector('#restart').addEventListener('click', () => { state.screen = 'intro'; state.index = 0; state.answers.fill(null); state.result = null; render(); });
   document.querySelector('#share').addEventListener('click', async () => {
